@@ -1,4 +1,4 @@
 public
 ======
 
-   For more information see the author's blog http://blog.net21.cz
+   For more information see my blog http://blog.net21.cz
