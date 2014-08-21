@@ -1,18 +1,22 @@
 package cz.net21.ttulka.rmimeetsjms;
 
+import java.io.Serializable;
 import java.lang.reflect.Proxy;
 
-import javax.jms.BytesMessage;
 import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageProducer;
+import javax.jms.ObjectMessage;
 import javax.jms.Queue;
 import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
 import javax.jms.QueueRequestor;
 import javax.jms.QueueSession;
 import javax.jms.Session;
+
+import cz.net21.ttulka.rmimeetsjms.envelope.CallReply;
+import cz.net21.ttulka.rmimeetsjms.envelope.CallRequest;
 
 /**
  * Class responsible for calling a remote method via JMS
@@ -91,9 +95,8 @@ public class RemoteServiceConsumer implements AutoCloseable {
 	 * @param encodedMsg encoded object to send
 	 * @throws JMSException
 	 */
-	void request(byte[] encodedMsg) throws JMSException {
-		BytesMessage msg = session.createBytesMessage();
-		msg.writeBytes(encodedMsg);
+	void request(CallRequest request) throws JMSException {
+		ObjectMessage msg = session.createObjectMessage(request);
 		producer.send(msg);
 	}
 	
@@ -104,19 +107,21 @@ public class RemoteServiceConsumer implements AutoCloseable {
 	 * @return response object
 	 * @throws JMSException
 	 */
-	byte[] requestReply(byte[] encodedMsg) throws JMSException {		
-		BytesMessage msg = session.createBytesMessage();
-		msg.writeBytes(encodedMsg);
+	@SuppressWarnings("unchecked")
+	CallReply<Integer> requestReply(CallRequest request) throws JMSException {		
+		ObjectMessage msg = session.createObjectMessage(request);
 		
 		Message reply = requestor.request(msg);
 		
-		if (reply instanceof BytesMessage) {
-			final BytesMessage bytesMessage = (BytesMessage)reply;
+		if (reply instanceof ObjectMessage) {
+			final ObjectMessage objectMessage = (ObjectMessage)reply;
+			final Serializable obj = objectMessage.getObject();
 			
-			byte[] bytes = new byte[(int) bytesMessage.getBodyLength()];
-		    bytesMessage.readBytes(bytes);
-		    
-			return bytes;
+			if (obj instanceof CallReply) {
+				return (CallReply<Integer>)obj;
+			} else {
+				throw new IllegalArgumentException("Received message is not type of CallReply");
+			}		    
 		}
 		else {
 			throw new IllegalArgumentException("Wrong type of the response message was received.");

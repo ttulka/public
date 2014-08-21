@@ -3,6 +3,9 @@ package cz.net21.ttulka.rmimeetsjms;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cz.net21.ttulka.rmimeetsjms.envelope.CallReply;
 import cz.net21.ttulka.rmimeetsjms.envelope.CallRequest;
 import cz.net21.ttulka.rmimeetsjms.envelope.CallRequest.CallParameter;
@@ -14,6 +17,8 @@ import cz.net21.ttulka.rmimeetsjms.envelope.CallRequest.CallParameter;
  *
  */
 class ServiceAdapter {
+	
+	protected static final Logger LOG = LoggerFactory.getLogger(ServiceAdapter.class);
 	
 	private final Object service;
 	
@@ -73,7 +78,7 @@ class ServiceAdapter {
 				return new CallReply<T>(res);
 			}
 			catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-				e.printStackTrace();
+				LOG.error("Error occured while calling a service.", e);
 			}
 		}
 		

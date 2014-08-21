@@ -40,17 +40,12 @@ class ServiceProxy implements InvocationHandler {
 		}
 		
 		try {
-			byte[] encodedRequest = ObjectSerializer.serialize(request);
-			
 			if (request.getReturnType().equals(Void.class)) {
-				consumer.request(encodedRequest);
+				consumer.request(request);
 				return Void.TYPE;
 			} 
 			else {
-				byte[] encodedReply = consumer.requestReply(encodedRequest);
-				
-				CallReply<Integer> reply = (CallReply<Integer>)ObjectSerializer.deserialize(encodedReply);
-				
+				CallReply<Integer> reply = consumer.requestReply(request);				
 				return reply.getResponse();
 			}
 		}

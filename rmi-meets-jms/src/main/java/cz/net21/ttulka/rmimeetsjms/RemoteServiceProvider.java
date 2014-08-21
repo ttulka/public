@@ -1,6 +1,9 @@
 package cz.net21.ttulka.rmimeetsjms;
 
-import javax.jms.BytesMessage;
+import java.io.Serializable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -9,6 +12,7 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
+import javax.jms.ObjectMessage;
 import javax.jms.Session;
 
 import cz.net21.ttulka.rmimeetsjms.envelope.CallReply;
@@ -21,6 +25,8 @@ import cz.net21.ttulka.rmimeetsjms.envelope.CallRequest;
  *
  */
 public class RemoteServiceProvider implements AutoCloseable {
+	
+	protected static final Logger LOG = LoggerFactory.getLogger(RemoteServiceProvider.class);
 	
 	private final ServiceAdapter serviceAdapter;
 	
@@ -74,33 +80,33 @@ public class RemoteServiceProvider implements AutoCloseable {
 		
 		public void onMessage(Message message) {
 			try {
-				if (message instanceof BytesMessage) {
-					final BytesMessage bytesMessage = (BytesMessage)message;
+				if (message instanceof ObjectMessage) {
+					final ObjectMessage objectMessage = (ObjectMessage)message;
+					final Serializable obj = objectMessage.getObject();
 					
-					byte[] bytes = new byte[(int) bytesMessage.getBodyLength()];
-				    bytesMessage.readBytes(bytes);
-					
-					final CallRequest request = (CallRequest)ObjectSerializer.deserialize(bytes);
-					
-					if (message.getJMSReplyTo() != null) {
+					if (obj instanceof CallRequest) {					
+						final CallRequest request = (CallRequest)obj;
 						
-						final CallReply<?> reply = serviceAdapter.callService(request);
-						final byte[] replyEncoded = ObjectSerializer.serialize(reply);
-						
-						Destination replyDestination = message.getJMSReplyTo();
-						MessageProducer replyProducer = session.createProducer(replyDestination);
-
-						BytesMessage replyMessage = session.createBytesMessage();
-						replyMessage.writeBytes(replyEncoded);
-						replyMessage.setJMSCorrelationID(message.getJMSMessageID());
-						replyProducer.send(replyMessage);						
-					} 
-					else {
-						serviceAdapter.callService(request);
-					}					
+						if (message.getJMSReplyTo() != null) {
+							
+							final CallReply<?> reply = serviceAdapter.callService(request);
+							
+							Destination replyDestination = message.getJMSReplyTo();
+							MessageProducer replyProducer = session.createProducer(replyDestination);
+	
+							ObjectMessage replyMessage = session.createObjectMessage(reply);
+							replyMessage.setJMSCorrelationID(message.getJMSMessageID());
+							replyProducer.send(replyMessage);						
+						} 
+						else {
+							serviceAdapter.callService(request);
+						}	
+					} else {
+						throw new IllegalArgumentException("Received message is not type of CallReply");
+					}
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
+			} catch (JMSException e) {
+				LOG.error("Error occured while consuming a message.", e);
 				throw new RuntimeException(e);
 			}
 		}
