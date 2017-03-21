@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<!--
+    Created by ttulka, 2017, http://blog.net21.cz
+-->
+<project name="ApplicationPackageManager" basedir=".." default="install">
+
+    <!-- system -->
+    <property name="applicationsDir" value="${basedir}/../applications" />
+    <property name="dataDir" value="${basedir}/data" />
+    <property name="configFile" value="${basedir}/conf/applications.conf" />
+
+    <!-- package -->
+    <property name="relPathMetaInfoFile" value="META-INF/meta.info" />
+    <property name="relPathDataDir" value="META-INF/data" />
+
+    <property name="libClasspath" value="core/lib/apm.jar" />
+
+    <taskdef name="dependencies-order" classname="cz.net21.ttulka.apm.ant.demo.DependenciesOrderTask" classpath="${libClasspath}" />
+    <taskdef name="create-conf-record" classname="cz.net21.ttulka.apm.ant.demo.CreateConfRecordTask" classpath="${libClasspath}" />
+
+    <!-- Install the application packages -->
+    <target name="install">
+        <dependencies-order path="${applicationsDir}" relpathmetainfofile="${relPathMetaInfoFile}">
+            <sequential>
+                <antcall target="install-app">
+                    <param name="appPath" value="@{application}" />
+                </antcall>
+            </sequential>
+        </dependencies-order>
+    </target>
+
+    <!-- Install an application if not already installed.
+         @param appPath - path to the application archive -->
+    <target name="install-app">
+        <!-- Load meta information -->
+        <loadproperties srcFile="${appPath}/${relPathMetaInfoFile}" prefix="metainfo" />
+        <property name="appName" value="${metainfo.name}" />
+        <property name="appVersion" value="${metainfo.version}" />
+
+        <antcall target="install-app-process" />
+    </target>
+
+    <!-- This task is called only when the app is not installed yet. -->
+    <target name="install-app-process" depends="_check-app-already-in-install-file" if="notInstalledYet">
+        <echo>Installing application from ${appPath}</echo>
+
+        <antcall target="merge-system-configuration" />
+    </target>
+
+    <!-- Check in applications config file if the application is already included. -->
+    <target name="_check-app-already-in-install-file">
+        <condition property="notInstalledYet">
+            <not>
+                <resourcecontains resource="${configFile}" substring="${appName}=" />
+            </not>
+        </condition>
+    </target>
+
+    <!-- Copy application data -->
+    <target name="merge-system-configuration">
+        <!-- create a record for the applications.conf file -->
+        <create-conf-record path="${appPath}/${relPathDataDir}">
+            <sequential>
+                <antcall target="write-conf-record">
+                    <param name="record" value="@{record}" />
+                </antcall>
+            </sequential>
+        </create-conf-record>
+
+        <!-- copy data files -->
+        <copy todir="${dataDir}">
+            <fileset dir="${appPath}/${relPathDataDir}" />
+        </copy>
+    </target>
+
+    <!-- Write a record to the application config file.
+         @param record - the record to write -->
+    <target name="write-conf-record">
+        <echo file="${configFile}" append="true">${line.separator}${appName}=${record}</echo>
+    </target>
+
+</project>
