@@ -1,11 +1,17 @@
 public
 ======
 
+   ant-sequential-tasks
+   ---
+   Ant Sequential Tasks
+   
+   Demo source codes from the article http://blog.net21.cz/index.php?/archives/19-Ant-Sequential-Tasks.html
+
    apm-demo
    ---
    Application Package Manager with Ant and Java
    
-   Demo source from the article http://blog.net21.cz/index.php?/archives/20-Application-Package-Manager-with-Ant-and-Java.html
+   Demo source codes from the article http://blog.net21.cz/index.php?/archives/20-Application-Package-Manager-with-Ant-and-Java.html
 
    rmi-meets-jms
    ---
