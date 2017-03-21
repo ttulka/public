@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<project name="MyTest" basedir="." default="test">
+
+    <property name="libpath" value="../../../target/AntSequentialTasks-1.0.jar" />
+
+    <taskdef name="fetch-files" classname="cz.net21.ttulka.ant.FetchFilesTask" classpath="${libpath}" />
+
+    <target name="test">
+        <fetch-files path="files" suffix=".xml">
+            <sequential>
+                <echo>My file print: @{file}</echo>
+
+                <antcall target="process-file">
+                    <param name="filename" value="@{file}" />
+                </antcall>
+            </sequential>
+        </fetch-files>
+    </target>
+
+    <target name="process-file">
+        <!-- do something with the file... print the content for example: -->
+        <loadfile property="content" srcFile="${filename}" />
+        <echo>${content}</echo>
+    </target>
+
+</project>
