@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -31,6 +32,7 @@ public class Bundle implements Source<String> {
 		InputStream is = Bundle.class.getResourceAsStream("/bundles/" + type + ".dat");
 		BufferedReader br = new BufferedReader(new InputStreamReader(is)); 
 		br.lines().forEach(values::add);
+		Collections.shuffle(values);
 	}
 	
 	public Iterator<String> iterator() {

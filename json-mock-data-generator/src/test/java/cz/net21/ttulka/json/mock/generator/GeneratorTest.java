@@ -62,7 +62,7 @@ public class GeneratorTest {
 		assertTrue(((List<?>)map.get("doctors")).size() < 3);
 	}
 	
-	//@Test
+	@Test
 	public void runFullTest() throws Exception {
 		new Generator(CONFIG_FULL, OUTPUT).run();
 				
