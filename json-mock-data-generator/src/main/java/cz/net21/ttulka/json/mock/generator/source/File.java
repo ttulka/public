@@ -20,7 +20,7 @@ public class File implements Source<String> {
 		this.content = readFile(path);
 	}
 	
-	private String readFile(Path path) {
+	String readFile(Path path) {
 		try (BufferedReader br = Files.newBufferedReader(path)) {
 			StringBuilder sb = new StringBuilder();
 			br.lines().forEach(sb::append);

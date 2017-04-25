@@ -1,8 +1,12 @@
 package cz.net21.ttulka.json.mock.generator.model;
 
 import java.nio.file.Path;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -21,6 +25,8 @@ public class Node {
 	private int repeatMax = 1;
 	private Integer min;
 	private Integer max;
+	private Date minDate;
+	private Date maxDate;
 	private Path path;
 	
 	private List<Node> children;
@@ -63,6 +69,14 @@ public class Node {
 
 	public Integer getMax() {
 		return max;
+	}
+
+	public Date getMinDate() {
+		return minDate;
+	}
+
+	public Date getMaxDate() {
+		return maxDate;
 	}
 
 	public int getRepeatMin() {
@@ -111,7 +125,7 @@ public class Node {
 		return "Node [type=" + type + ", name=" + name + "]";
 	}
 
-	public static class NodeBuilder {
+	static class NodeBuilder {
 		
 		private Node node;
 		
@@ -123,12 +137,12 @@ public class Node {
 			return node;
 		}
 		
-		NodeBuilder type(NodeTypes type) {
+		private NodeBuilder type(NodeTypes type) {
 			node.type = type;
 			return this;
 		}
 		
-		NodeBuilder name(String name) {
+		private NodeBuilder name(String name) {
 			node.name = name;
 			return this;
 		}
@@ -156,22 +170,47 @@ public class Node {
 		
 		NodeBuilder path(Path path) {
 			node.path = path;
-			return this;
+			return this;	
 		}
 		
 		NodeBuilder min(String min) {
-			node.min = Integer.parseInt(min);
+			Optional<Date> date = getAsDate(min);
+			if (date.isPresent()) {
+				node.minDate = date.get();
+			} else {
+				node.min = Integer.parseInt(min);
+			}
 			return this;
 		}
 		
 		NodeBuilder max(String max) {
-			node.max = Integer.parseInt(max);
+			Optional<Date> date = getAsDate(max);
+			if (date.isPresent()) {
+				node.maxDate = date.get();
+			} else {
+				node.max = Integer.parseInt(max);
+			}
 			return this;
 		}
 		
 		NodeBuilder children(List<Node> children) {
 			node.children = children;
 			return this;
+		}
+		
+		private Optional<Date> getAsDate(String str) {
+			try {
+				if (Pattern.compile("\\d{4}-\\d{2}-\\d{2}").matcher(str).matches()) {
+					return Optional.of(new SimpleDateFormat("yyyy-MM-dd").parse(str));
+				}
+				if (Pattern.compile("\\d{1,2}.\\d{1,2}.\\d{4}").matcher(str).matches()) {
+					return Optional.of(new SimpleDateFormat("dd.MM.yyyy").parse(str));
+				}
+			} 
+			catch (Exception e) {
+				throw new IllegalArgumentException("Wrong date format: " + str);
+			}
+			return Optional.empty();
 		}
 	}	
 }

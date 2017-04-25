@@ -17,6 +17,9 @@ import cz.net21.ttulka.json.mock.generator.model.NodeTypes;
  *
  */
 public class Bundle implements Source<String> {
+	
+	private static final String BUNDLES_PATH = "bundles";
+	private static final String BUNDLES_SUFFIX = ".dat";
 
 	private final List<String> values;
 	
@@ -29,13 +32,13 @@ public class Bundle implements Source<String> {
 	
 	public Bundle(NodeTypes type) {
 		this();		
-		InputStream is = Bundle.class.getResourceAsStream("/bundles/" + type + ".dat");
+		InputStream is = Bundle.class.getResourceAsStream("/" + BUNDLES_PATH + "/" + type + BUNDLES_SUFFIX);
 		BufferedReader br = new BufferedReader(new InputStreamReader(is)); 
 		br.lines().forEach(values::add);
 		Collections.shuffle(values);
 	}
 	
-	public Iterator<String> iterator() {
+	Iterator<String> iterator() {
 		return values.iterator();
 	}
 	

@@ -9,5 +9,9 @@ package cz.net21.ttulka.json.mock.generator.source;
 @FunctionalInterface
 public interface Source<T> {
 	
+	/**
+	 * Returns a next values.
+	 * @return the next value
+	 */
 	public T getNext();
 }

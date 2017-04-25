@@ -31,7 +31,7 @@ public class Lorem implements Source<String> {
 		this(random, 100);
 	}
 	
-	private String generateLorem(int max) {
+	String generateLorem(int max) {
 		List<String> list = Arrays.stream(LOREM_IPSUM.split("[,\\.\\s]"))
 				.filter(s -> s.length() > 1)
 				.map(String::trim)

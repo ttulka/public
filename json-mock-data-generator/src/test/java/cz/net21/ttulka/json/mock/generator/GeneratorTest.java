@@ -1,8 +1,8 @@
 package cz.net21.ttulka.json.mock.generator;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,8 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.json.JSONObject;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
 import org.junit.Test;
 
 import cz.net21.ttulka.json.mock.generator.util.JsonUtils;
@@ -31,18 +30,9 @@ public class GeneratorTest {
 	
 	private static final Path OUTPUT = Paths.get("output.json.test");
 		
-	@Before
-	public void setUp() throws Exception {		
-	}
-	
-	@After
-	public void cleanUp() {
-		try {
-			Files.delete(OUTPUT);
-		} 
-		catch (IOException e) {
-			e.printStackTrace();
-		}
+	@AfterClass
+	public static void cleanUp() throws IOException {
+		Files.delete(OUTPUT);
 	}
 
 	@Test

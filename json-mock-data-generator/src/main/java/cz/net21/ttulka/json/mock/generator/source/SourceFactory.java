@@ -20,8 +20,8 @@ public class SourceFactory {
 	
 	private final Map<NodeTypes, Source<String>> cache;
 	
-	private final Random random;
-	private final SimpleDateFormat dateFormat;
+	protected final Random random;	
+	protected final SimpleDateFormat dateFormat;
 	
 	public SourceFactory() {
 		super();
@@ -37,11 +37,13 @@ public class SourceFactory {
 			case VALUE:		
 				return () -> node.getValue();
 			case INTEGER:	
-				return getNumberSource(node.getMin(), node.getMax(), (min, max) -> Math.abs(random.nextInt(max + min)) + min);
+				return getNumberSource(node.getMin(), node.getMax(), 
+						(min, max) -> getRandomInt(min, max));
 			case FLOAT:		
-				return getNumberSource(node.getMin(), node.getMax(), (min, max) -> Math.abs(random.nextLong() % (max + min)) + min);
+				return getNumberSource(node.getMin(), node.getMax(), 
+						(min, max) -> getRandomInt(min, max) + random.nextFloat());
 			case DATE:		
-				return getDateSource((Date)null, (Date)null);// TODO
+				return getDateSource(node.getMinDate(), node.getMaxDate());
 			case ID: 	
 				return getCachedSource(node.getType(), (t) -> new Id());
 			case LOREM: 	
@@ -56,6 +58,10 @@ public class SourceFactory {
 				return cache.computeIfAbsent(node.getType(), Bundle::new);				
 		}
 	}
+	
+	private int getRandomInt(int min, int max) {
+		return Math.abs(random.nextInt()) % (max - min + 1) + min;
+	}
 
 	private Source<String> getCachedSource(NodeTypes type, Function<NodeTypes,Source<String>> create) {
 		return cache.computeIfAbsent(type, create);
@@ -69,8 +75,8 @@ public class SourceFactory {
 
 	private Source<String> getDateSource(Date min, Date max) {
 		long minimum = min != null ? min.getTime() : 0;
-		long maximum = max != null ? max.getTime() : Integer.MAX_VALUE;
-		return () -> dateFormat.format(new Date(random.nextLong() % (maximum + minimum) + minimum));
+		long maximum = max != null ? max.getTime() : new Date().getTime();
+		return () -> dateFormat.format(new Date(Math.abs(random.nextLong()) % (maximum + minimum) + minimum));
 	}
 
 	private Source<String> getFullNameSource() {

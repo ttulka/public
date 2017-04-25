@@ -31,14 +31,14 @@ public class Configuration {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private List<Node> readNodes(JSONObject json) {
+	List<Node> readNodes(JSONObject json) {
 		return ((List<Map<String,?>>) json.toMap().entrySet().iterator().next().getValue()).stream()
 				.map(this::mapToNode)
 				.collect(Collectors.toList());		
 	}
 	
 	@SuppressWarnings("unchecked")
-	private Node mapToNode(Map<String,?> map) {
+	Node mapToNode(Map<String,?> map) {
 		NodeTypes type = getNodeType(map);
 		String name = (String) map.get("name");
 		
@@ -71,7 +71,7 @@ public class Configuration {
 		return builder.build();
 	}
 	
-	private NodeTypes getNodeType(Map<String,?> map) {
+	NodeTypes getNodeType(Map<String,?> map) {
 		if (map.containsKey("type")) {
 			return NodeTypes.parse((String) map.get("type"));
 		}

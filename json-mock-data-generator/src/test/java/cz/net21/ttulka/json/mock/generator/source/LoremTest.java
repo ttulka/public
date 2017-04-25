@@ -1,8 +1,11 @@
 package cz.net21.ttulka.json.mock.generator.source;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Random;
 
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -12,7 +15,7 @@ import org.junit.Test;
  * @author ttulka
  *
  */
-public class SourceLoremTest {
+public class LoremTest {
 
 	private Lorem source;
 	
@@ -22,10 +25,12 @@ public class SourceLoremTest {
 	}
 	
 	@Test
-	public void getNextTest() {
-		String lorem = source.getNext();
+	public void generateLoremTest() {
+		String lorem = source.generateLorem(50);
 		
+		assertNotNull(lorem);
 		assertTrue(lorem.endsWith("."));
 		assertTrue(lorem.contains(","));
+		assertEquals(50, lorem.split(" ").length);
 	}
 }

@@ -12,7 +12,7 @@ import org.junit.Test;
  * @author ttulka
  *
  */
-public class SourceIdTest {
+public class IdTest {
 
 	private Id source;
 	

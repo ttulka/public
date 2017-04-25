@@ -91,7 +91,8 @@
 				},
 				{
 					name: "updated",
-					type: "date"
+					type: "date",
+					min: "1990-01-01"
 				}
 			]
 		}
